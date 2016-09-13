@@ -1,5 +1,5 @@
 === Sift Ninja ===
-Contributors:
+Contributors: George Thomson, Jesse Korzan, Chris Priebe, Mike Priebe, Andrew Favro, Nick Prouten
 Tags: comments, spam, harassemnt, bullying, moderation
 Requires at least: 3.0.1
 Tested up to: 3.4
