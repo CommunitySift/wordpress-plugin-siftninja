@@ -10,6 +10,7 @@ A WordPress Plugin to use Sift Ninja to moderate comments
 == Description ==
 Sift Ninja is a free plugin that provides a powerful yet simple way to automatically moderate and filter comments on your WordPress site by calling powerful Sift API. After installation, any new comments posts on your WordPress site will automatically call the Sift API, where it can be classified as Vulgarity (Profanity) Bullying, Racism, Violence, Sexting, or PII (Personally Identifiable Information
 ). After the comment has been classified, it will be evaluated by the policy guide that you have configured in the app to determine if the comment should be shown. If the comment fails your policy guide, Sift Ninja gives you the option to either discard the comment automatically or prevent it from being seen while it awaits manual moderation.
+User need to create an account at http://www.siftninja.com, a SaaS software application from Two Hat Security Ltd.
 == Features ==
 Manage Comments
 If the submissions for comments on your Wordpress site are abusive or toxic Sift Ninja can automatically identify the topic of the comment, as well as determine the degree of severity for that topic. Using the Wordpress moderation options, you can either get Sift Ninja to send unwanted comments to the trash or to moderation for you to review.
