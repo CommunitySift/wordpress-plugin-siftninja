@@ -1,9 +1,9 @@
 === Sift Ninja ===
 Contributors: TwoHat
 Tags: comments, spam, harassment, bullying, moderation
-Requires at least: 3.0.1
-Tested up to: 4.5.4
-Stable tag: 4.3
+Requires at least: 4.2
+Tested up to: 4.6.1
+Stable tag: 4.6.1
 License: MIT
 License URI: https://opensource.org/licenses/MIT
 A WordPress Plugin to use Sift Ninja to moderate comments
