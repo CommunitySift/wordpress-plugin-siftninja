@@ -29,5 +29,12 @@ Sift Ninja is easy to install. There are several ways to install Sift Ninja on W
 == Support ==
 If you have encountered an issue in the installation or configuration of the Wordpress Plugin, please visit our Success Desk at https://siftninja.zendesk.com/
 == Changelog ==
+= 1.1 =
+* Updated API call to use https
+* Fixed error where channel name was assumed to be 'comments', not settings entry.
+* If a comment is already marked as trash or spam, then Sift Ninja is not called.
+* Accounting for an http response code of 200 or '200'
+* Fix potential problem where the previous status was lost if an error occured.
+
 = 1.0 =
 * First Release!
