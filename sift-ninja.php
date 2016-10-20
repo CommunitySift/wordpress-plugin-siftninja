@@ -3,7 +3,7 @@
 Plugin Name: Sift Ninja
 Plugin URI: http://www.siftninja.com
 Description: A WordPress Plugin to use Sift Ninja
-Version: 1.0
+Version: 1.1
 Author: Community Sift
 Author URI: http://www.siftninja.com
 License: MIT
@@ -83,12 +83,14 @@ if ( ! class_exists( 'Sift_Ninja' ) ) {
 				TODO: should this be the option instead of just account name?  what if
 				siftninja.com changes to something else? **/
 		function get_sift_url() {
-			return sprintf( 'http://%s.%s', $this->get_sift_account_name(), $this::base_url );
+			return sprintf( 'https://%s.%s', $this->get_sift_account_name(), $this::base_url );
 		}
 
 		/** Comments endpoint. **/
 		function get_sift_endpoint() {
-			return sprintf( '%s/api/v1/channel/comments/sifted_data', $this->get_sift_url() );
+			$channel = $this->get_sift_channel();
+			$api_url = $this->get_sift_url();
+			return sprintf( '%s/api/v1/channel/%s/sifted_data', $api_url, $channel );
 		}
 
 		/** API Key **/
@@ -109,53 +111,80 @@ if ( ! class_exists( 'Sift_Ninja' ) ) {
 		// Get a Sift response to a comment.
 		/** Returns true/false based on Sift Ninja's response to the comment text **/
 		function get_sift_comment_response( $commentdata, $approved ) {
+			//error_log("@@@ Enter get_sift_comment_response");
+			//error_log(print_r($approved, true));
+			//error_log(print_r($commentdata, true));
+			//error_log("@@@ After param debug");
+			
+			//
+			// Check if we need to even send to Sift Ninja
+			//
+			
+			// If it is already marked as spam or trash, just return that
+			if ( ($approved === 'spam') or ($approved === 'trash') ) {
+				return $approved;
+			};
+			
 			try {
 				$url = $this->get_sift_endpoint();
-					$api_key = $this->get_sift_api_key();
-					$account_name = $this->get_sift_account_name();
+				$api_key = $this->get_sift_api_key();
+				$account_name = $this->get_sift_account_name();
 
 				$user_id = sprintf( '%s-%s', $account_name, $commentdata['user_id'] );
 
-								$auth_token = base64_encode( ":$api_key" );
-								$headers = array(
-										'Authorization' => "Basic $auth_token",
-								);
+				$auth_token = base64_encode( ":$api_key" );
+				$headers = array(
+						'Authorization' => "Basic $auth_token",
+				);
 
-								$comment_post_ID = $commentdata['comment_post_ID'];
-								$comment_date = $commentdata['comment_date_gmt'];
-								$context = "$comment_post_ID-$comment_date";
-								$body = wp_json_encode(array(
-														'text' => $commentdata['comment_content'],
-														'user_id' => $user_id,
-														'user_display_name' => $commentdata['comment_author'],
-														'content_id' => "$context",
-								));
+				$comment_post_ID = $commentdata['comment_post_ID'];
+				$comment_date = $commentdata['comment_date_gmt'];
+				$context = "$comment_post_ID-$comment_date";
+				$body = wp_json_encode(array(
+										'text' => $commentdata['comment_content'],
+										'user_id' => $user_id,
+										'user_display_name' => $commentdata['comment_author'],
+										'content_id' => "$context",
+				));
 
-								$response = wp_remote_post( $url, array(
-									'headers' => $headers,
-									'body' => $body,
-									)
-								);
-								// Check for WPError.
+				//error_log("SiftNinja:   url: $url");
+
+				$response = wp_remote_post( $url, array(
+					'headers' => $headers,
+					'body' => $body,
+					)
+				);
+				// Check for WPError.
 				if ( is_wp_error( $response ) ) {
-										$error_message = $response->get_error_message();
-										echo esc_html( "Something went wrong: $error_message" );
+					$error_message = $response->get_error_message();
+					error_log("SiftNinja: Got WP_Error: ");
+					error_log("SiftNinja:   WP_Error message: $error_message");
+					error_log(print_r($response, true));
+					echo esc_html( "Something went wrong: $error_message" );
 				} else {
-										// Check response from Sift Ninja.
-					if ( '200' !== $response['response']['code'] ) {
+					// Check response from Sift Ninja.
+					$response_code = $response['response']['code'];
+					// Check if the code is not 200 or '200'
+					if ( !( ($response_code === 200) or ($response_code === '200')) ) {
 						// Got an error code from Sift.
-						error_log( 'Got error from Sift:' );
+						error_log( "SiftNinja: Got error from Sift: response_code = $response_code" );
 						error_log( print_r( $response['response'], true ) );
 					} else {
 
 						$sift_response = json_decode( $response['body'] );
+						//error_log( "SiftNinja: sift_ninja response = ");
+						//error_log( print_r( $sift_response, true ) );
+						
 						if ( '' !== $sift_response ) {
+							//error_log( "SiftNinja: Checking response");
 							$check_response = $sift_response->response;
 							if ( 1 === $check_response or true === $check_response ) {
 								// If Sift allowed it, then return the previous result.
+								//error_log( "SiftNinja: Sift Ninja said okay");
 								return $approved;
 							} else {
 								// If Sift did not allow it, then set it moderate.
+								//error_log( "SiftNinja: Sift Ninja said not okay");
 								// Check if the user wants to moderate or trash.
 								if ( get_option( 'sift_ninja_trash_on_response' ) === '1' ) {
 									return 'trash';
@@ -165,6 +194,8 @@ if ( ! class_exists( 'Sift_Ninja' ) ) {
 							}
 						} else {
 							// Something went wrong with the response from Sift.
+							error_log( "SiftNinja: Not checking response. Sift response = ");
+							error_log( print_r( $sift_response, true ) );
 							return $approved;
 						};
 					};
@@ -172,9 +203,14 @@ if ( ! class_exists( 'Sift_Ninja' ) ) {
 
 			} catch (Exception $ex) {
 				// TODO: what to do on error?
+				error_log( 'SiftNinja: Got exception:' );
+				error_log( print_r( $response['response'], true ) );
 				return $approved;
 
 			}
+			// Should not get here, but going to return previous value just in case
+			error_log( 'SiftNinja: Got to end of funtion' );
+			return $approved;
 		}
 	} // END class Sift_Ninja.
 } // END if(!class_exists( 'Sift_Ninja'))
