@@ -125,7 +125,7 @@ if ( ! class_exists( 'Sift_Ninja_Settings' ) ) {
 				$value = get_option( $field, $default );
 				// Get the 'checked' string.
 				$checked = checked( '1', $value, false );
-				error_log( "value: $value, field: $field, default: $default, checked: $checked" );
+				//error_log( "value: $value, field: $field, default: $default, checked: $checked" );
 				// Echo a proper input type="checkbox".
 				echo sprintf(
 					'<input type="checkbox" name="%s" id="%s" value="%s" %s /> <span>%s</span>',
