@@ -44,7 +44,7 @@ if ( ! class_exists( 'Sift_Ninja' ) ) {
 
 			// Add a filter to be run on comment approval.  Set it to a high priority so it is one of
 			// the last to run, in case earlier filters clean it up.
-						add_filter( 'pre_comment_approved', array( $this, 'filter_pre_comment_approved' ), 99, 2 );
+			add_filter( 'pre_comment_approved', array( $this, 'filter_pre_comment_approved' ), 99, 2 );
 
 		} // END public function __construct
 
