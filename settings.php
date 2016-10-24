@@ -91,7 +91,7 @@ if ( ! class_exists( 'Sift_Ninja_Settings' ) ) {
 				echo esc_html( 'These settings are for configuring Sift Ninja' );
 				echo '</h1>';
 
-				echo esc_html( 'If you do not have a Sift ninja account, you can visit <a href="http://www.siftninja.com">Sift Ninja</a> to create your free account.' );
+				echo 'If you do not have a Sift ninja account, you can visit <a href="http://www.siftninja.com?platform=WordPressPlatform" target="_blank">Sift Ninja</a> to create your free account.';
 		}
 
 		/**
